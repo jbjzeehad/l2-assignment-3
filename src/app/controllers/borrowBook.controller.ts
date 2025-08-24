@@ -37,7 +37,7 @@ export const borrowBook = async (req: Request, res: Response) => {
     } else {
       res.status(404).json({
         success: false,
-        message: "no enough copies",
+        message: "Not enough copies.",
       });
     }
   } catch (error: any) {

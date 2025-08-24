@@ -41,7 +41,7 @@ const bookSchema = new Schema<IBook>(
     description: { type: String, trim: true },
     copies: {
       type: Number,
-      min: [1, "Copies must be a positive number"],
+      min: [0, "Copies must be a positive number"],
       required: true,
     },
     available: { type: Boolean, default: true },
@@ -51,6 +51,24 @@ const bookSchema = new Schema<IBook>(
     timestamps: true,
   }
 );
+
+bookSchema.pre("save", function (next) {
+  if (this.copies <= 0) {
+    this.available = false;
+  } else {
+    this.available = true;
+  }
+  next();
+});
+
+bookSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate() as any;
+  if (update.copies !== undefined) {
+    update.available = update.copies > 0;
+    this.setUpdate(update);
+  }
+  next();
+});
 
 bookSchema.post("findOneAndDelete", async function (doc, next) {
   if (doc) {
