@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
-import { IBook } from "../interfaces/book.interface";
+import { IBook } from "../interfaces/books.interface";
+import { BorrowBook } from "./borrowBook.model";
 
 const bookSchema = new Schema<IBook>(
   {
@@ -16,6 +17,8 @@ const bookSchema = new Schema<IBook>(
     genre: {
       type: String,
       uppercase: true,
+      required: true,
+      trim: true,
       enum: {
         values: [
           "FICTION",
@@ -38,7 +41,7 @@ const bookSchema = new Schema<IBook>(
     description: { type: String, trim: true },
     copies: {
       type: Number,
-      min: [0, "Copies must be a positive number"],
+      min: [1, "Copies must be a positive number"],
       required: true,
     },
     available: { type: Boolean, default: true },
@@ -49,4 +52,11 @@ const bookSchema = new Schema<IBook>(
   }
 );
 
-export const Book = model("Book", bookSchema);
+bookSchema.post("findOneAndDelete", async function (doc, next) {
+  if (doc) {
+    await BorrowBook.deleteMany({ book: doc._id });
+  }
+  next();
+});
+
+export const Books = model<IBook>("Books", bookSchema);
