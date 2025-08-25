@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IBook } from "../interfaces/books.interface";
+import { IBook, IBookModel } from "../interfaces/books.interface";
 import { BorrowBook } from "./borrowBook.model";
 
 const bookSchema = new Schema<IBook>(
@@ -52,24 +52,6 @@ const bookSchema = new Schema<IBook>(
   }
 );
 
-bookSchema.pre("save", function (next) {
-  if (this.copies <= 0) {
-    this.available = false;
-  } else {
-    this.available = true;
-  }
-  next();
-});
-
-bookSchema.pre("findOneAndUpdate", function (next) {
-  const update = this.getUpdate() as any;
-  if (update.copies !== undefined) {
-    update.available = update.copies > 0;
-    this.setUpdate(update);
-  }
-  next();
-});
-
 bookSchema.post("findOneAndDelete", async function (doc, next) {
   if (doc) {
     await BorrowBook.deleteMany({ book: doc._id });
@@ -77,4 +59,15 @@ bookSchema.post("findOneAndDelete", async function (doc, next) {
   next();
 });
 
-export const Books = model<IBook>("Books", bookSchema);
+bookSchema.statics.updateCopies = async function (
+  bookId: string,
+  copies: number
+) {
+  return this.findByIdAndUpdate(
+    bookId,
+    { copies, available: copies > 0 },
+    { new: true }
+  );
+};
+
+export const Books = model<IBook, IBookModel>("Books", bookSchema);

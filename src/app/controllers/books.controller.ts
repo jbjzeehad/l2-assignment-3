@@ -79,25 +79,36 @@ export const singleBook = async (req: Request, res: Response) => {
 export const updateBook = async (req: Request, res: Response) => {
   try {
     const bookId = req.params.bookId;
+    const updateBody = req.body;
     const isValidBookId = await Books.findById({ _id: bookId });
-    let updateBook;
-    if (isValidBookId) {
-      const updateBody = req.body;
-      updateBook = await Books.findByIdAndUpdate(bookId, updateBody, {
-        new: true,
-      });
-      res.status(201).json({
-        success: true,
-        message: "Book updated successfully",
-        data: updateBook,
-      });
-    } else {
-      res.status(404).json({
+
+    if (!isValidBookId) {
+      return res.status(404).json({
         success: false,
         message: "Invalid BookId",
         data: bookId,
       });
     }
+    let updateSingleBook;
+    if (updateBody.copies !== undefined) {
+      updateSingleBook = await Books.updateCopies(bookId, updateBody.copies);
+      const otherFields = { ...updateBody };
+      delete otherFields.copies;
+      if (Object.keys(otherFields).length > 0) {
+        updateSingleBook = await Books.findByIdAndUpdate(bookId, otherFields, {
+          new: true,
+        });
+      }
+    } else {
+      updateSingleBook = await Books.findByIdAndUpdate(bookId, updateBody, {
+        new: true,
+      });
+    }
+    res.status(201).json({
+      success: true,
+      message: "Book updated successfully",
+      data: updateSingleBook,
+    });
   } catch (error: any) {
     res.status(404).json({
       success: false,
