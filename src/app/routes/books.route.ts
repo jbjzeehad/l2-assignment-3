@@ -12,5 +12,5 @@ export const booksRoutes = express.Router();
 booksRoutes.post("/api/books", createBook);
 booksRoutes.get("/api/books", allBooks);
 booksRoutes.get("/api/books/:bookId", singleBook);
-booksRoutes.patch("/api/books/:bookId", updateBook);
+booksRoutes.put("/api/books/:bookId", updateBook);
 booksRoutes.delete("/api/books/:bookId", deleteBook);
