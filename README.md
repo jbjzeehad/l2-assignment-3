@@ -4,7 +4,7 @@
 
 #### • Live Deployment : https://librarymanagementsystem-eosin.vercel.app/
 
-#### • Video Explanation :
+#### • Video Explanation : https://drive.google.com/file/d/1UNSXVK4LNsnymvp0ark6UzwKzYtp3PM-/view?usp=sharing
 
 ## 1. Features
 
